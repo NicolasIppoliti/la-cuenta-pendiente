@@ -1,4 +1,9 @@
+import { useState } from "react";
+import { ComplaintMap, type Point } from "./ComplaintMap";
+
 export default function App() {
+  const [candidate, setCandidate] = useState<Point>();
+
   return (
     <div className="mx-auto flex min-h-svh max-w-5xl flex-col px-[24px] py-8 sm:px-12">
       <header className="border-b border-ink pb-6">
@@ -16,12 +21,21 @@ export default function App() {
         </p>
         <section aria-labelledby="development" className="max-w-xl border-l-4 border-ink pl-6">
           <h2 id="development" className="text-lg font-bold">
-            Estamos preparando este espacio
+            Elegí el punto del reclamo
           </h2>
           <p className="mt-4 leading-relaxed">
-            Esta versión todavía no recibe reclamos ni muestra un mapa o datos reales. No es un
-            canal oficial municipal.
+            Esta versión es solo para uso local y sintético. No es un canal oficial municipal.
           </p>
+          <div className="mt-6">
+            <ComplaintMap onSelect={setCandidate} />
+          </div>
+          {candidate ? (
+            <p className="mt-4 leading-relaxed">
+              Punto candidato seleccionado. Confirmá este punto en el próximo paso.
+            </p>
+          ) : (
+            <p className="mt-4 leading-relaxed">Hacé clic en el mapa para elegir un punto.</p>
+          )}
         </section>
       </main>
       <footer className="border-t border-ink pt-6 text-sm">
