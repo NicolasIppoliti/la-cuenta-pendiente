@@ -2,7 +2,7 @@
 
 ## Status
 
-**Tasks 1–2 complete** in the first `stacked-to-main` slice (`territory/data`). The explicitly authorized `territory-boundary-correction` corrected Task 1's boundary predicate and added independent exterior regressions. Tasks 3–8 remain intentionally untouched; parent-owned lifecycle actions remain deferred.
+**Tasks 1–3 complete** across the selected `stacked-to-main` chain. The first `territory/data` slice and its explicitly authorized `territory-boundary-correction` are retained. This bounded continuation completed Task 3; Task 4 remains unchecked because completing the full request-contract implementation and its direct-request test matrix would exceed the fixed 400 authored-line budget for this attempt. Tasks 4–8 remain intentionally untouched; parent-owned lifecycle actions remain deferred.
 
 ### Structured status consumed
 
@@ -100,3 +100,52 @@ After the user-authorized correction-accounting reset from 40 to 400 changed lin
 | Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
 |---|---|---|---|---|---|---|---|
 | 1. Territory boundary correction revalidation | `tests/complaint-intake.test.ts` | Unit | Existing correction suite passed: 17 tests | N/A — revalidation only; no code/test edit | Existing correction remains green | Both independent exterior regressions plus exact boundary passed | No refactor or source edit |
+
+## Tasks 3–4 continuation (retry 1)
+
+### Completed work
+
+- [x] Implement and verify reservation, deterministic private-object recovery, and idempotent completion. <!-- sdd-owner: implementation -->
+  - Added `coordinateComplaintIntake()` and narrow injected `PendingIntakeStore` / `PrivateOriginalStore` interfaces in `worker/complaint-intake.ts`.
+  - The coordinator reserves one staged logical submission, uses `pending-originals/v1/{complaintId}`, reports storage failures as non-success, resumes a staged same-key retry, replays a complete receipt, and rejects a reused key with a changed fingerprint.
+  - No R2 compensation/delete path, public read route, route wiring, validation, logging, migration, fixture, dependency, UI, E2E, remote, commit, or deployment change was made.
+  - The persisted Task 3 checkbox is checked in `tasks.md`.
+
+### TDD Cycle Evidence
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|
+| 3. D1/R2 coordinator | `tests/complaint-intake.test.ts` | Unit | 17/17 relevant existing tests passed before modification | Import of the absent `worker/complaint-intake` module failed | Coordinator tests passed after the minimal coordinator was added | Partial R2 failure/retry, lost-response replay, and changed-fingerprint conflict all passed | Biome check passed; no behavior refactor was needed |
+
+### Verification evidence
+
+- `pnpm exec vitest run tests/complaint-intake.test.ts --testNamePattern "retry|partial|idempotency"` — focused coordinator scenarios pass.
+- `pnpm test` — passed, 2 files / 20 tests.
+- `pnpm typecheck` — passed.
+- `pnpm exec biome check worker/complaint-intake.ts tests/complaint-intake.test.ts` — passed.
+- Runtime boundary: **N/A for Cloudflare compatibility**. The injected in-memory stores deliberately prove recovery sequencing only; real local D1/R2 is deferred to Task 5.
+
+### Workload / PR boundary
+
+- Delivery remains `chained` / `stacked-to-main`; no `size:exception` was granted or inferred.
+- This retry acquired continuation token `sha256:6098b83ed1875ff6c00909e128dcc5aac70c9270c43b074990646e782ff2dff8` for `tasks-3-4-api-durability` with a 400 changed-line maximum.
+- Task 3 adds 128 test lines and 98 coordinator lines (226 source/test lines). Native attempt accounting recorded 278 changed lines after the required change-local task/progress artifacts. Completing Task 4's direct-request matrix and route implementation in the remaining 122 lines would exceed the fixed attempt budget, so no Task 4 production or test artifact was retained.
+
+### Remaining tasks
+
+- [ ] Implement and verify the write-only `POST /api/complaints` contract. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify the real local storage boundary for one synthetic intake. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify explicit manual point selection and local-only mapped attribution. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify the bounded anonymous form flow. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify the documentation and repository-wide acceptance evidence. <!-- sdd-owner: implementation -->
+
+### Deferred lifecycle actions
+
+- [ ] After apply, start or reuse one bounded review against the approved delivery shape and verify the OpenSpec lifecycle gate before any archive action. <!-- sdd-owner: parent -->
+
+### Structured status / action context
+
+- Native status consumed: `changeName=add-pending-complaint-intake`, `artifactStore=openspec`, authoritative `applyState=ready`, repository-local root `/Users/nicolasmateoippoliti/dev/la-cuenta-pendiente`.
+- `actionContext.allowedEditRoots` permitted every changed path. CodeGraph initialization was attempted after root resolution, but the `codegraph` executable was unavailable on `PATH`; scoped direct inspection was the documented fallback.
+- The user resolved the workload gate as `chained` / `stacked-to-main`, current branch `feat/pending-complaint-api-durability`, Task 3–4 slice, maximum 400 authored lines. The safety stop above does not reopen that decision.
+- Native settlement recorded the failed bounded attempt at evidence revision `sha256:0493159a9ca2b4acaa096dd666f066a664492b22040598a3032d33082f76e2a5`; native runtime status is `decision_required=true`, `next_action=reset`, and `complete=false`. A maintainer-owned reset is required before another acquisition.
