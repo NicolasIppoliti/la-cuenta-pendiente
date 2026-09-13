@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+/* Semantic colors; spacing and typography use Tailwind's built-in scales. */
+@theme {
+  --color-paper: #faf7ef;
+  --color-ink: #202820;
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: system-ui, sans-serif;
+  overflow-wrap: break-word;
+}
