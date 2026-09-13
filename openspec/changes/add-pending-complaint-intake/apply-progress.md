@@ -128,7 +128,7 @@ After the user-authorized correction-accounting reset from 40 to 400 changed lin
 ### Workload / PR boundary
 
 - Delivery remains `chained` / `stacked-to-main`; no `size:exception` was granted or inferred.
-- This retry acquired continuation token `sha256:6098b83ed1875ff6c00909e128dcc5aac70c9270c43b074990646e782ff2dff8` for `tasks-3-4-api-durability` with a 400 changed-line maximum.
+- The retry used native attempt authority for `tasks-3-4-api-durability` with a 400 changed-line maximum; opaque authority values are intentionally not persisted.
 - Task 3 adds 128 test lines and 98 coordinator lines (226 source/test lines). Native attempt accounting recorded 278 changed lines after the required change-local task/progress artifacts. Completing Task 4's direct-request matrix and route implementation in the remaining 122 lines would exceed the fixed attempt budget, so no Task 4 production or test artifact was retained.
 
 ### Remaining tasks
@@ -149,3 +149,127 @@ After the user-authorized correction-accounting reset from 40 to 400 changed lin
 - `actionContext.allowedEditRoots` permitted every changed path. CodeGraph initialization was attempted after root resolution, but the `codegraph` executable was unavailable on `PATH`; scoped direct inspection was the documented fallback.
 - The user resolved the workload gate as `chained` / `stacked-to-main`, current branch `feat/pending-complaint-api-durability`, Task 3–4 slice, maximum 400 authored lines. The safety stop above does not reopen that decision.
 - Native settlement recorded the failed bounded attempt at evidence revision `sha256:0493159a9ca2b4acaa096dd666f066a664492b22040598a3032d33082f76e2a5`; native runtime status is `decision_required=true`, `next_action=reset`, and `complete=false`. A maintainer-owned reset is required before another acquisition.
+
+## Task 4 continuation (HTTP intake)
+
+- [ ] The write-only `POST /api/complaints` implementation is present but not accepted. Independent verification found malformed ISO-BMFF brand scanning that can misclassify an `avif` box followed by out-of-box `heic`, missing explicit multipart `Content-Type` enforcement, and a failing Biome check in `tests/worker.test.ts`.
+- Health and JSON 404 behavior remain unchanged. Task 4 must remain unchecked until those blockers are corrected and independently reverified.
+
+### TDD Cycle Evidence
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|
+| 4. HTTP intake | `tests/worker.test.ts` | Direct Worker request | 20/20 | New route assertions returned 404 | 29/29 passed | multipart validation matrix + key conflict | Biome format; 29/29 passed |
+
+**Verification:** `pnpm test -- tests/worker.test.ts`, `pnpm test` (29 passing), `pnpm typecheck`, and scoped Biome check passed. Deterministic direct bindings prove only the HTTP contract; real workerd/D1/R2/browser durability remains **N/A** for Tasks 5/7.
+
+**Files:** `worker/complaint-intake.ts`, `worker/index.ts`, `tests/worker.test.ts`, task/progress artifacts. **Deviation:** CodeGraph executable unavailable; scoped fallback used. **Boundary:** Task 4 only; selected `chained` / `stacked-to-main`, 400 lines, no exception/commit/push/PR/dependency/migration/UI/E2E/remote/deploy.
+
+**Remaining:**
+- [ ] Implement and verify the real local storage boundary for one synthetic intake. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify explicit manual point selection and local-only mapped attribution. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify the bounded anonymous form flow. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify the documentation and repository-wide acceptance evidence. <!-- sdd-owner: implementation -->
+
+**Status:** Task 4 is **blocked**. Native accounting recorded 429 changed lines against 400 and requires a maintainer-owned reset. Independent verification additionally rejected the current format parser, multipart enforcement, and formatting state. No review or delivery may proceed until a user-owned split/exception decision, correction, and fresh verification.
+
+## Task 4 correction and revalidation
+
+The user explicitly accepted `size:exception` for this cohesive HTTP intake unit within the selected `chained` / `stacked-to-main` delivery shape. The native changed-line budget is now 500. Task 4 is complete and its implementation-owned checkbox is visibly checked in `tasks.md`; no parent-owned checkbox was modified.
+
+### Correction
+
+- `imageFormat()` now reads the declared 32-bit ISO-BMFF `ftyp` extent only. It considers the major brand at offset 8 and compatible brands only from valid 4-byte slots starting at offset 16; the size/type/minor-version slots and any bytes outside the declared box cannot establish HEIC/HEIF acceptance.
+- `handleComplaintIntake()` now rejects every non-`multipart/form-data` `Content-Type` with the static private `400 invalid_submission` response before calling `request.formData()`.
+- `tests/worker.test.ts` is formatted. The new direct Worker regressions prove that `avif` with an out-of-box `heic` trailer returns `415 unsupported_photo`, and that an otherwise valid parsed form supplied to a non-multipart request is rejected at the HTTP contract seam.
+- Triangulation retains acceptance of HEIC major-brand, HEIF compatible-brand, JPG/JPEG, PNG, and WebP signatures. Existing UUID, location, description, photo, idempotency, health, `405 Allow: POST`, and JSON-404 scenarios remain green.
+
+### TDD Cycle Evidence
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|
+| 4. HTTP intake correction | `tests/worker.test.ts` | Direct Worker request | `pnpm test -- tests/worker.test.ts`: 29 passing; targeted Biome initially failed only on the reported line-37 formatting | Added malformed out-of-box `heic` and non-multipart regressions; both failed because each request incorrectly returned `201` | Declared-`ftyp` parsing and pre-`formData()` multipart enforcement made the two regressions pass (31/31) | Added accepted HEIC-major, HEIF-compatible, PNG, and WebP cases while retaining existing JPG/JPEG coverage; 35/35 passed | Formatted Worker test/intake files; focused suite and targeted Biome passed again |
+
+### Fresh verification evidence
+
+- `pnpm test -- tests/worker.test.ts` — passed, 2 files / 35 tests (focused GREEN, TRIANGULATE, and REFACTOR runs).
+- `pnpm test` — passed, 2 files / 35 tests.
+- `pnpm typecheck` — passed.
+- `pnpm exec biome check tests/worker.test.ts worker/complaint-intake.ts worker/index.ts` — passed.
+- `git diff --check` — passed.
+
+The direct Worker request seam proves HTTP validation and deterministic test bindings only. Real workerd, local D1/R2 durability, browser behavior, deployment, and production operations remain **N/A** and are deferred to Tasks 5–8.
+
+### Files changed
+
+- `worker/complaint-intake.ts`
+- `tests/worker.test.ts`
+- `openspec/changes/add-pending-complaint-intake/tasks.md`
+- `openspec/changes/add-pending-complaint-intake/apply-progress.md`
+
+`worker/index.ts` remains within the Task 4 unit from the prior continuation and was not needed for this correction.
+
+### Remaining implementation tasks
+
+- [ ] Implement and verify the real local storage boundary for one synthetic intake. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify explicit manual point selection and local-only mapped attribution. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify the bounded anonymous form flow. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify the documentation and repository-wide acceptance evidence. <!-- sdd-owner: implementation -->
+
+### Deferred lifecycle actions
+
+- [ ] After apply, start or reuse one bounded review against the approved delivery shape and verify the OpenSpec lifecycle gate before any archive action. <!-- sdd-owner: parent -->
+
+### Structured status and workload
+
+- Native status consumed: `changeName=add-pending-complaint-intake`, `artifactStore=openspec`, authoritative `applyState=ready`; `actionContext=repo-local` and `/Users/nicolasmateoippoliti/dev/la-cuenta-pendiente` was the allowed edit root.
+- Delivery path: `ask-on-risk` resolved as `chained` / `stacked-to-main`; user explicitly approved `size:exception` for this Task 4 cohesive HTTP intake unit, with a 500 changed-line native budget. No commit, push, PR, dependency, migration, UI/E2E, remote, provision, deploy, or network action was performed.
+- CodeGraph initialization was attempted after project-root resolution, but its executable is unavailable on `PATH`; scoped direct file inspection was used as the documented fallback.
+
+## Task 4 final ISO-BMFF alignment correction
+
+Task 4 remains visibly checked in `tasks.md`. This bounded retry corrected the final independently found malformed-`ftyp` acceptance case; no other implementation or parent-owned task checkbox was modified.
+
+### Correction
+
+- `isoBmffBrands()` now requires the declared compatible-brand region (`boxSize - 16`) to be divisible by four, in addition to the existing minimum 16-byte fields and declared-size-within-available-bytes checks.
+- A declared 17-byte `ftyp` box with major brand `heic`, a valid minor version, and one dangling compatible-brand byte is now rejected as `415 unsupported_photo`.
+- Major-brand and complete compatible-brand HEIC/HEIF acceptance is unchanged; the minor version is still skipped and declared-out-of-box brands remain inadmissible.
+
+### TDD Cycle Evidence
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|
+| 4. ISO-BMFF alignment correction | `tests/worker.test.ts` | Direct Worker request | 35/35 focused tests and targeted Biome passed before the new regression | The exact 17-byte `ftyp` regression returned `201` rather than expected `415` | One compatible-region alignment guard made it pass (36/36) | All prior 35 cases, including explicit multipart rejection, valid major/compatible HEIC/HEIF, JPG/JPEG, PNG, WebP, and out-of-box-brand rejection, remained green | Applied formatter only; focused tests and Biome remained green |
+
+### Fresh verification evidence
+
+- `pnpm test -- tests/worker.test.ts` — passed, 2 files / 36 tests.
+- `pnpm test` — passed, 2 files / 36 tests.
+- `pnpm typecheck` — passed.
+- `pnpm exec biome check tests/worker.test.ts worker/complaint-intake.ts` — passed.
+- `git diff --check` — passed.
+
+### Files changed in this retry
+
+- `worker/complaint-intake.ts`
+- `tests/worker.test.ts`
+- `openspec/changes/add-pending-complaint-intake/apply-progress.md`
+
+### Remaining implementation tasks
+
+- [ ] Implement and verify the real local storage boundary for one synthetic intake. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify explicit manual point selection and local-only mapped attribution. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify the bounded anonymous form flow. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify the documentation and repository-wide acceptance evidence. <!-- sdd-owner: implementation -->
+
+### Deferred lifecycle action
+
+- [ ] After apply, start or reuse one bounded review against the approved delivery shape and verify the OpenSpec lifecycle gate before any archive action. <!-- sdd-owner: parent -->
+
+### Structured status and workload
+
+- Native status was freshly read: `changeName=add-pending-complaint-intake`, `artifactStore=openspec`, authoritative `applyState=ready`, `nextRecommended=apply`, 5/10 persisted task rows complete, and no blocked reasons.
+- `actionContext=repo-local` permits the repository root; all retry edits are within the user-authorized surfaces.
+- Delivery remains `stacked-to-main` with the user's explicit `size:exception` and native 500-line budget. Parent owns runtime settlement and failed-evidence binding; no authority token or attempt record is persisted here.
+- Direct Worker tests prove request validation only. Local workerd/D1/R2 durability, browser behavior, deployment, and production operations remain **N/A** and deferred to Tasks 5–8.
