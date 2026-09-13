@@ -71,7 +71,7 @@ The forecast crosses the canonical 400 authored changed-line budget because the 
 
 ### 3. Build the recoverable D1/R2 coordinator at its internal seam
 
-- [ ] Implement and verify reservation, deterministic private-object recovery, and idempotent completion. <!-- sdd-owner: implementation -->
+- [x] Implement and verify reservation, deterministic private-object recovery, and idempotent completion. <!-- sdd-owner: implementation -->
 
 **Start:** Units 1–2 are green; the schema is available conceptually, but no intake route is exposed.
 
