@@ -91,7 +91,7 @@ The forecast crosses the canonical 400 authored changed-line budget because the 
 
 ### 4. Connect the Worker route and server-side trust-boundary validation
 
-- [ ] Implement and verify the write-only `POST /api/complaints` contract. <!-- sdd-owner: implementation -->
+- [x] Implement and verify the write-only `POST /api/complaints` contract. <!-- sdd-owner: implementation -->
 
 **Start:** The territory, schema, and coordinator seams are green; existing health and unknown-route tests remain in their original intent.
 
