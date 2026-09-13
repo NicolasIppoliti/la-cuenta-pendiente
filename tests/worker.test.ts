@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { expect, test } from "vitest";
 import worker from "../worker/index";
 
@@ -25,3 +26,20 @@ test.each(["/api", "/api/missing", "/api/health/", "/api/health/nested"])(
     expect(await response.json()).toEqual({ error: "Not found" });
   },
 );
+
+test("pending_complaints migration defines the private Pending schema", async () => {
+  const migration = await readFile(
+    new URL("../migrations/0001_pending_complaints.sql", import.meta.url),
+    "utf8",
+  );
+
+  expect(migration).toMatch(/CREATE TABLE pending_complaints/);
+  expect(migration).toMatch(/idempotency_key TEXT NOT NULL UNIQUE/);
+  expect(migration).toMatch(/status TEXT NOT NULL CHECK \(status = 'Pending'\)/);
+  expect(migration).toMatch(
+    /durability_state TEXT NOT NULL CHECK \(durability_state IN \('staged', 'complete'\)\)/,
+  );
+  expect(migration).toMatch(
+    /CHECK \(\(durability_state = 'complete' AND completed_at IS NOT NULL\) OR \(durability_state = 'staged' AND completed_at IS NULL\)\)/,
+  );
+});

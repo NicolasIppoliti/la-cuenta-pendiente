@@ -1,0 +1,85 @@
+schema: spec-driven
+project: la-cuenta-pendiente
+artifact_store: openspec
+execution_mode: auto
+authorized_scope: init-only
+delivery_strategy: ask-on-risk
+review_budget_lines: 400
+chain_strategy: deferred
+strict_tdd: true
+skill_registry: .atl/skill-registry.md
+
+context: |
+  Single-package pnpm 10 application on Node 24 with React 19, Vite 8, and strict TypeScript 6.
+  Tailwind CSS 4 styles a development-only landing; Biome provides linting and formatting checks.
+  The Cloudflare Vite plugin serves static assets and a Worker exposing only a process-health API.
+  Wrangler config declares local-only D1 (DB) and private R2 (PRIVATE_IMAGES) bindings; no schema or storage flow exists.
+  Portless owns isolated local routes; Playwright exercises the built preview through real workerd boundaries.
+  Current code is foundation-only: do not infer complaint-domain behavior or production readiness from initialization.
+
+model_resolution:
+  tier: balanced
+  source: current-session runtime
+  local_override: null
+  evidence: No concrete model is pinned by repository configuration.
+
+testing:
+  workspace_command: pnpm test
+  strict_tdd_basis: One discovered package project; the root Vitest command covers its configured test suite.
+  guidance:
+    - Protect important observable behavior with the smallest effective tests and incremental RED-GREEN-REFACTOR slices.
+    - Use real boundary integration when verifying a dependency; do not mock the dependency under verification.
+    - Avoid duplicate scenarios and arbitrary coverage thresholds; add only the test layer justified by risk.
+    - Keep CI minimal; no CI workflow or repository coverage requirement was detected.
+    - Explicit repository requirements override these defaults; surface conflicts rather than silently resolving them.
+  projects:
+    - path: .
+      stack: React 19 / Vite 8 / TypeScript 6 / Tailwind CSS 4 / Cloudflare Workers
+      runner: Vitest 5
+      test_command: pnpm test
+      layers:
+        - Vitest request-level tests call the Worker fetch handler directly.
+        - Playwright 1.63 tests the landing, SPA fallback, and API behavior through Vite preview, Portless, and workerd.
+      coverage_command: null
+      lint_command: pnpm lint
+      type_check_command: pnpm typecheck
+      format_check_command: pnpm lint
+      build_command: pnpm build
+      e2e_runner: Playwright 1.63 (Chromium)
+      e2e_command: pnpm test:e2e
+  limitations:
+    - Vitest includes only tests/**/*.test.ts and has no browser DOM or React component-test environment configured.
+    - No coverage command, coverage provider, threshold, or CI workflow was detected.
+    - D1 and private R2 are local bindings only and currently have no schema, product workflow, or dedicated tests.
+    - The health endpoint proves process liveness only; it does not prove D1 or R2 readiness.
+
+rules:
+  proposal:
+    - Initialization authorizes no product change; obtain separately confirmed scope before proposing complaint behavior.
+    - Keep scope bounded and identify risks, rollback, exclusions, and any review-budget decision.
+  specs:
+    - Write English RFC 2119 requirements with Given/When/Then scenarios for approved observable behavior only.
+    - Do not turn the development landing, placeholder bindings, or future directions into inferred requirements.
+  design:
+    - Follow existing React, Worker, Cloudflare, local-binding, and Portless boundaries unless approved scope requires otherwise.
+    - Select the smallest effective test seam; use a real local boundary when that boundary is under verification.
+  tasks:
+    - Use small numbered work units with tests and rollback alongside behavior; avoid duplicate scenarios and speculative setup.
+    - Forecast authored changed lines against the 400-line review budget and pause under ask-on-risk when necessary.
+  apply:
+    tdd: true
+    test_command: pnpm test
+    guidelines:
+      - Use focused RED-GREEN-REFACTOR slices for observable behavior, then run the relevant broader checks.
+      - Do not mock the dependency or platform boundary being verified; use the existing real local harness where applicable.
+      - Do not add dependencies, CI, coverage thresholds, Cloudflare resources, or product scope without explicit approval.
+      - Preserve human gates and report conflicts with explicit repository requirements.
+  verify:
+    test_command: pnpm test
+    build_command: pnpm build
+    guidelines:
+      - Run and report the smallest relevant checks, expanding to lint, typecheck, build, and E2E according to changed risk.
+      - Do not claim D1, R2, browser, or deployed behavior from tests that do not exercise those boundaries.
+      - Report missing coverage rather than inventing a threshold or redundant scenarios.
+  archive:
+    - Archive only separately approved, implemented, and verified changes; initialization creates no baseline product spec.
