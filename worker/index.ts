@@ -12,10 +12,8 @@ export default {
       }
       return Response.json({ status: "ok" });
     }
-    if (path === "/api/complaints") {
-      if (!env) return Response.json({ error: "Not found" }, { status: 404 });
-      return handleComplaintIntake(request, env);
-    }
+    if (path === "/api/complaints")
+      return handleComplaintIntake(request, env as ComplaintIntakeEnv);
     return Response.json({ error: "Not found" }, { status: 404 });
   },
 };

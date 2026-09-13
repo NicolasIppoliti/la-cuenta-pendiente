@@ -273,3 +273,54 @@ Task 4 remains visibly checked in `tasks.md`. This bounded retry corrected the f
 - `actionContext=repo-local` permits the repository root; all retry edits are within the user-authorized surfaces.
 - Delivery remains `stacked-to-main` with the user's explicit `size:exception` and native 500-line budget. Parent owns runtime settlement and failed-evidence binding; no authority token or attempt record is persisted here.
 - Direct Worker tests prove request validation only. Local workerd/D1/R2 durability, browser behavior, deployment, and production operations remain **N/A** and deferred to Tasks 5–8.
+
+## Task 5 local storage E2E
+
+### Completed work
+
+- [x] Implement and verify the real local storage boundary for one synthetic intake. <!-- sdd-owner: implementation -->
+  - Added one request-level Playwright scenario using a generated four-byte synthetic JPEG signature (no fixture needed). It posts the same multipart body and idempotency key twice through the existing preview → Portless → workerd path.
+  - The first request receives `201` with the private `{ complaintId, status: "Pending" }` receipt; the retry receives `200` and the identical receipt. The scenario has no read/debug endpoint or private-storage inspection.
+  - Removed the optional-env fallback that made the actual workerd route answer `404` instead of handing the configured local bindings to the existing intake adapter. Health and unknown API branches are unchanged.
+  - The Task 5 checkbox is visibly checked in `tasks.md`.
+
+### TDD Cycle Evidence
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|
+| 5. Local D1/R2 retry | `e2e/smoke.spec.ts` | Real local Playwright/workerd | `pnpm test:e2e`: 4/4 existing scenarios passed | New request-level retry scenario received `404` rather than the required first-request `201` | Removing the inappropriate optional-env route guard produced `201` then `200`; 5/5 full E2E passed | The one planned scenario exercises distinct new-intake (`201`) and completed-retry (`200`, same exact receipt) branches with the same opaque multipart image/key | Biome formatted the test and route; final 5/5 E2E remained green |
+
+### Verification evidence
+
+- `pnpm test:e2e` — passed 5/5 Playwright tests after the route fix and again after formatting. The configured E2E runner contains one `e2e/smoke.spec.ts` file, so this was both the relevant file-level run and its complete E2E suite; no out-of-scope runner forwarding change was added solely to pass a grep filter.
+- `pnpm test -- tests/worker.test.ts` — passed, 2 files / 36 tests; confirms direct Worker compatibility after the route handoff adjustment.
+- `pnpm typecheck` — passed.
+- `pnpm exec biome check e2e/smoke.spec.ts worker/index.ts` — passed after formatting.
+- `git diff --check` — passed.
+
+Runtime boundary: this is real local Vite preview → Portless → workerd → local D1/private R2 evidence, with the existing `wrangler d1 migrations apply DB --local` step reporting no pending migrations first. It proves local multipart durability/retry behavior only. Remote/deployed D1 or R2, provisioning, deployment, production durability, and production operations are **N/A** and were not attempted.
+
+### Files changed
+
+- `e2e/smoke.spec.ts`
+- `worker/index.ts`
+- `openspec/changes/add-pending-complaint-intake/tasks.md`
+- `openspec/changes/add-pending-complaint-intake/apply-progress.md`
+
+### Remaining implementation tasks
+
+- [ ] Implement and verify explicit manual point selection and local-only mapped attribution. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify the bounded anonymous form flow. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify the documentation and repository-wide acceptance evidence. <!-- sdd-owner: implementation -->
+
+### Deferred lifecycle action
+
+- [ ] After apply, start or reuse one bounded review against the approved delivery shape and verify the OpenSpec lifecycle gate before any archive action. <!-- sdd-owner: parent -->
+
+### Structured status and workload
+
+- Native status consumed: `changeName=add-pending-complaint-intake`, `artifactStore=openspec`, authoritative `applyState=ready`; `actionContext=repo-local` allowed the repository root.
+- Delivery is user-resolved as `ask-on-risk` → `chained` → `stacked-to-main`, current branch `feat/pending-complaint-local-storage-e2e`, Task 5 only, 400 changed-line budget, and no exception. This work unit changes 33 source/test lines before its required artifact updates.
+- The active native continuation was acquired and settled `passed` for the Task 5 local-storage E2E objective; opaque authority values are intentionally not recorded here. Settlement reported the objective complete.
+- CodeGraph initialization was attempted after project-root resolution but the `codegraph` executable is unavailable on `PATH`; scoped direct inspection was used as the documented fallback.
+- No fixture, dependency, migration, UI change, read/debug route, remote/network/provision/deploy operation, commit, push, PR, or parent-owned lifecycle action was performed.

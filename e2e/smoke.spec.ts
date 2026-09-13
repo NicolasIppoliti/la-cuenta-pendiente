@@ -62,6 +62,33 @@ test("real Worker serves health and rejects methods", async ({ request }) => {
   expect(rejected.headers().allow).toBe("GET");
 });
 
+test("private intake retry returns one Pending receipt through local storage", async ({
+  request,
+}) => {
+  const idempotencyKey = crypto.randomUUID();
+  const multipart = () => ({
+    idempotencyKey,
+    longitude: "-62.078",
+    latitude: "-38.875",
+    locationConfirmed: "true",
+    description: "Synthetic pothole",
+    photo: {
+      name: "synthetic.jpg",
+      mimeType: "image/jpeg",
+      buffer: Buffer.from([0xff, 0xd8, 0xff, 0xe0]),
+    },
+  });
+
+  const first = await request.post("/api/complaints", { multipart: multipart() });
+  expect(first.status()).toBe(201);
+  const receipt = await first.json();
+  expect(receipt).toEqual({ complaintId: expect.any(String), status: "Pending" });
+
+  const retry = await request.post("/api/complaints", { multipart: multipart() });
+  expect(retry.status()).toBe(200);
+  expect(await retry.json()).toEqual(receipt);
+});
+
 test("unknown API paths never become SPA HTML, including navigations", async ({
   request,
   page,
