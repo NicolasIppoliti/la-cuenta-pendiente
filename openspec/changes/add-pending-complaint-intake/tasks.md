@@ -151,7 +151,7 @@ The forecast crosses the canonical 400 authored changed-line budget because the 
 
 ### 7. Add the confirmed-point form and truthful client outcomes
 
-- [ ] Implement and verify the bounded anonymous form flow. <!-- sdd-owner: implementation -->
+- [x] Implement and verify the bounded anonymous form flow. <!-- sdd-owner: implementation -->
 
 **Start:** Units 1–6 are green; the API remains the authority and the map only reports a manually clicked candidate.
 

@@ -559,3 +559,95 @@ Runtime boundary: Chromium used the local preview → Portless → workerd harne
 - Delivery remains `stacked-to-main`; the parent-authorized `osm-host-normalization` corrective work unit has the canonical 400-line budget. No `size:exception` was used or inferred.
 - CodeGraph initialization was attempted after project-root resolution but the executable is unavailable on `PATH`; scoped direct inspection was used.
 - Parent owns attempt settlement and lifecycle closure; no authority token is persisted. No Task 7–8, application, Worker/API, dependency/lock, style, remote, provisioning, deployment, commit, push, PR, or review work was performed.
+
+## Task 7 confirmed-point complaint form
+
+### Completed work
+
+- [x] Implement and verify the bounded anonymous form flow. <!-- sdd-owner: implementation -->
+  - Added an accessible anonymous local/synthetic form with one required allowed photo, optional 500-code-point description, and optional private WhatsApp field.
+  - A candidate requires a separate confirmation; every map movement clears that confirmation. GPS remains nonblocking through the existing map seam.
+  - One UUID stays with an unchanged retry; a changed field or candidate after a retryable failure rotates it. Submitting disables the control, and success renders only the Pending receipt and disclaimer.
+  - The retained non-official-channel warning is prominent; private inputs are cleared after success and never appear in the receipt.
+
+### TDD Cycle Evidence
+
+| Task | Test file | Layer | Safety net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|
+| 7. Complaint form | `e2e/smoke.spec.ts` | Chromium / preview / Portless / workerd | 6/6 E2E | Confirmation button absent: 7th scenario failed | Form flow passed 7/7 after App/styles implementation | Added missing-photo disabled-state assertion; 7/7 passed | Extracted retry state synchronization; scoped Biome and 7/7 passed |
+
+### Verification evidence
+
+- `pnpm test` — passed, 2 files / 36 tests.
+- `pnpm typecheck` — passed.
+- `pnpm exec biome check src/App.tsx src/styles.css e2e/smoke.spec.ts` — passed.
+- `pnpm build && pnpm test:e2e` — fresh build passed (existing MapLibre chunk-size warning only); real local E2E passed 7/7. The test routes the first actual workerd response to a retryable browser failure, then retries retained form data to the same local D1/R2 receipt.
+- `git diff --check` — passed. A full `pnpm lint` also surfaced pre-existing/out-of-scope formatting findings in `.pi/gentle-ai/sdd-preflight.json` and `worker/data/ign-06182.json`; neither was modified under this Task 7 boundary.
+
+Runtime boundary: Chromium exercised preview → Portless → workerd → local D1/private R2. OSM tiles remained locally intercepted by the existing shared guard. Remote/deployed resources, production durability, and production OSM availability are **N/A**.
+
+### Files changed
+
+- `src/App.tsx`
+- `src/styles.css`
+- `e2e/smoke.spec.ts`
+- `openspec/changes/add-pending-complaint-intake/tasks.md`
+- `openspec/changes/add-pending-complaint-intake/apply-progress.md`
+
+### Remaining tasks and lifecycle
+
+- [ ] Implement and verify the documentation and repository-wide acceptance evidence. <!-- sdd-owner: implementation -->
+- [ ] After apply, start or reuse one bounded review against the approved delivery shape and verify the OpenSpec lifecycle gate before any archive action. <!-- sdd-owner: parent -->
+
+### Structured status, workload, and action context
+
+- Consumed authoritative `applyState=ready` for `add-pending-complaint-intake`; repo-local `/Users/nicolasmateoippoliti/dev/la-cuenta-pendiente` was the only edit root.
+- Delivery is `ask-on-risk` → `chained` → `stacked-to-main`, branch `feat/pending-complaint-form`, Task 7 only, canonical 400-line budget, no exception. Source/test diff is 337 changed lines before required artifacts.
+- CodeGraph initialization was attempted after root resolution, but its executable and MCP intelligence tool were unavailable; scoped inspection was used. No Worker/API, map, dependency, migration, network, delivery, review, commit, push, or PR work occurred.
+
+## Task 7 complaint-form correction
+
+### Corrected behavior
+
+- Removed the browser `maxLength` constraint, which counts UTF-16 code units, and retained the explicit `Array.from(description).length` code-point validation. The description now exposes an accessible live `N/500 caracteres.` count.
+- FormData sends trimmed optional description and WhatsApp values, matching the server normalization used to fingerprint a submission.
+- Added a synchronous `submitInFlight` guard and a frozen mutable form region while a request is active: native controls are disabled, the region is inert, and the map surface has no pointer events. Map, file, description, WhatsApp, confirmation, and submit paths also reject late/programmatic mutation while that guard is set.
+- Kept the MapLibre callback stable without manual memoization so a normal candidate update does not recreate the imperative map and discard its marker.
+- The browser test captures the multipart requests sent to the actual local endpoint. It proves 500 supplementary Unicode code points are accepted client-side, 501 are rejected, in-flight map/input/second-submit attempts leave one request, the retry has identical UUID/normalized scalar values/filename/bytes, the initial accepted receipt is returned as retry `200`, and post-success reset produces a new key.
+- Task 7 was already persisted as complete; `tasks.md` was re-read and still visibly contains `- [x] Implement and verify the bounded anonymous form flow. <!-- sdd-owner: implementation -->`. No Task 8 or parent-owned checkbox was changed.
+
+### TDD Cycle Evidence
+
+| Work unit | Test file | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|
+| `complaint-form-correction` | `e2e/smoke.spec.ts` | Fresh local E2E failed because `maxlength="500"` truncated 501 supplementary characters to 250 code points. | Removed `maxLength`, added code-point feedback, frozen mutable region, submit guard, stable map callback, and multipart capture. | The real local browser/workerd scenario covers 500/501 boundaries, attempted in-flight input/map/re-entry mutation, unchanged retry bytes/fields/UUID, first `201` receipt/retry `200` same receipt, and success key rotation. | Corrected the conditional `inert` attribute (false must omit it), stabilized the imperative map callback, and formatted the three scoped files. |
+
+### Verification evidence
+
+- RED: `pnpm test:e2e` — 6/7 passed; the new browser assertion failed at the old UTF-16 `maxlength` behavior exactly as expected.
+- `pnpm test` — passed, 2 files / 36 tests.
+- `pnpm typecheck` — passed.
+- `pnpm build && pnpm test:e2e` — fresh build passed with the existing MapLibre chunk-size warning; the real local preview → Portless → workerd → local D1/private-R2 suite passed 7/7. OSM tile traffic remained locally intercepted by the shared test guard.
+- `pnpm exec biome check src/App.tsx src/styles.css e2e/smoke.spec.ts` — passed after scoped formatting.
+- `git diff --check` — passed before the required artifact update; rerun after persistence below.
+
+Runtime boundary: this browser evidence proves the client behavior plus the real local endpoint/D1/R2 receipt contract. It does not prove remote/deployed resources, production durability, production OSM availability, or production operations; those are **N/A**.
+
+### Files changed
+
+- `src/App.tsx`
+- `src/styles.css`
+- `e2e/smoke.spec.ts`
+- `openspec/changes/add-pending-complaint-intake/apply-progress.md`
+
+### Remaining tasks and deferred lifecycle
+
+- [ ] Implement and verify the documentation and repository-wide acceptance evidence. <!-- sdd-owner: implementation -->
+- [ ] After apply, start or reuse one bounded review against the approved delivery shape and verify the OpenSpec lifecycle gate before any archive action. <!-- sdd-owner: parent -->
+
+### Structured status, workload, and action context
+
+- Consumed the authoritative native status: `changeName=add-pending-complaint-intake`, `artifactStore=openspec`, `applyState=ready`, and repo-local root `/Users/nicolasmateoippoliti/dev/la-cuenta-pendiente` as the only allowed edit root.
+- Delivery remains `stacked-to-main`. The user explicitly accepted the candidate-specific `size:exception` if the final diff exceeds 400; the active correction objective has the native 500-line budget. No delivery action, commit, push, PR, review, remote operation, or external-network request occurred.
+- A parent-owned active correction attempt was continued for the required runtime evidence. Parent owns settlement; no opaque authority value is recorded here.
+- CodeGraph initialization was attempted after root resolution and failed because the `codegraph` executable is unavailable on `PATH`; scoped direct inspection was the documented fallback.
