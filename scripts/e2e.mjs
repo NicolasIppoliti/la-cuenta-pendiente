@@ -40,6 +40,18 @@ function stop() {
 process.on("SIGINT", stop);
 process.on("SIGTERM", stop);
 try {
+  const migration = start("pnpm", [
+    "exec",
+    "wrangler",
+    "d1",
+    "migrations",
+    "apply",
+    "DB",
+    "--local",
+  ]);
+  const [migrationCode] = await migration.done;
+  if (migrationCode !== 0) throw new Error("Local D1 migration failed");
+
   const proxy = start(
     "portless",
     ["proxy", "start", "--foreground", "--port", String(port)],
