@@ -111,7 +111,7 @@ The forecast crosses the canonical 400 authored changed-line budget because the 
 
 ### 5. Prove real local D1/R2 durability and retry through workerd
 
-- [ ] Implement and verify the real local storage boundary for one synthetic intake. <!-- sdd-owner: implementation -->
+- [x] Implement and verify the real local storage boundary for one synthetic intake. <!-- sdd-owner: implementation -->
 
 **Start:** Unit 4's direct Worker contract is green and Unit 2's local migration startup command is verified.
 
