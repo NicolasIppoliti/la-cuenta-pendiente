@@ -324,3 +324,238 @@ Runtime boundary: this is real local Vite preview → Portless → workerd → l
 - The active native continuation was acquired and settled `passed` for the Task 5 local-storage E2E objective; opaque authority values are intentionally not recorded here. Settlement reported the objective complete.
 - CodeGraph initialization was attempted after project-root resolution but the `codegraph` executable is unavailable on `PATH`; scoped direct inspection was used as the documented fallback.
 - No fixture, dependency, migration, UI change, read/debug route, remote/network/provision/deploy operation, commit, push, PR, or parent-owned lifecycle action was performed.
+
+## Task 6 manual MapLibre selection
+
+### Completed work
+
+- [x] Implement and verify explicit manual point selection and local-only mapped attribution. <!-- sdd-owner: implementation -->
+  - Added the approved `maplibre-gl` dependency and `src/ComplaintMap.tsx`, which owns MapLibre setup and cleanup.
+  - Standard OSM raster tiles and visible `© OpenStreetMap contributors` attribution are configured only for `localhost` and `.localhost` hostnames. Other hosts render the map without that source and state that the local basemap is unavailable.
+  - Browser geolocation is recenter-only; denial or absence reports a nonblocking hint. A human canvas click places the candidate marker and reports coordinates to the minimal `App` map mount. No confirmation, form, submission, provider fallback, prefetch, offline cache, or public map was added.
+  - Added one real Chromium scenario: it denies GPS, intercepts every OSM tile request with a tiny in-test PNG response, verifies visible attribution, and proves that a manual map click creates the visible candidate marker. It makes no external OSM tile request.
+  - The persisted Task 6 checkbox is visibly checked in `tasks.md`.
+
+### TDD Cycle Evidence
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|
+| 6. MapLibre selection | `e2e/smoke.spec.ts` | Real Chromium / preview / Portless | `pnpm test:e2e`: 5/5 existing scenarios passed | New GPS-denied/manual-click/attribution scenario failed before the map existed | `pnpm build && pnpm test:e2e`: 6/6 passed after adding the local-only MapLibre seam | One scenario covers distinct denied-GPS, intercepted-tile/attribution, and manual-marker paths; no second browser scenario was added because this work unit authorizes one real Chromium scenario | Scoped lifecycle cleanup and formatting; `pnpm test:e2e` remained 6/6 |
+
+### Verification evidence
+
+- `pnpm test:e2e` — safety net passed 5/5; RED failed because the GPS-unavailable UI was absent; final focused/full configured E2E passed 6/6.
+- `pnpm typecheck` — passed.
+- `pnpm build` — passed. Vite reports the expected MapLibre client chunk-size warning (>500 kB); no speculative code-splitting was added.
+- `pnpm exec biome check package.json src/App.tsx src/ComplaintMap.tsx src/styles.css e2e/smoke.spec.ts` — passed.
+- `git diff --check` — passed.
+
+Runtime boundary: Chromium exercised the built local preview through Portless with real MapLibre. All `https://tile.openstreetmap.org/**` requests were intercepted and fulfilled locally; production OSM availability/SLA, production tile authorization, deployed resources, and production operations are **N/A** and were not attempted.
+
+### Files changed
+
+- `package.json`
+- `pnpm-lock.yaml`
+- `src/ComplaintMap.tsx`
+- `src/App.tsx`
+- `src/styles.css`
+- `e2e/smoke.spec.ts`
+- `openspec/changes/add-pending-complaint-intake/tasks.md`
+- `openspec/changes/add-pending-complaint-intake/apply-progress.md`
+
+### Remaining implementation tasks
+
+- [ ] Implement and verify the bounded anonymous form flow. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify the documentation and repository-wide acceptance evidence. <!-- sdd-owner: implementation -->
+
+### Deferred lifecycle action
+
+- [ ] After apply, start or reuse one bounded review against the approved delivery shape and verify the OpenSpec lifecycle gate before any archive action. <!-- sdd-owner: parent -->
+
+### Structured status, action context, and workload
+
+- Native status consumed: `changeName=add-pending-complaint-intake`, `artifactStore=openspec`, authoritative `applyState=ready`; `actionContext=repo-local` allowed the repository root.
+- Delivery is user-resolved as `ask-on-risk` → `chained` → `stacked-to-main`, branch `feat/pending-complaint-map-selection`, Task 6 only, 400 changed-line budget, and no exception.
+- Native continuation was acquired for this Task 6 objective before every runtime-bearing test/build run; opaque authority values are intentionally not recorded here.
+- CodeGraph initialization was attempted after root resolution, but the `codegraph` executable is unavailable on `PATH`; scoped file inspection was the documented fallback.
+- No external OSM test traffic, remote resource, paid service, migration, deployment, commit, push, PR, Task 7 form/confirmation/submission, or parent-owned lifecycle action was performed.
+- Settlement blocker: the native `sdd-attempt settle` request was rejected as `undeclared_untracked` after the workspace inventory changed from `sha256:6fb4cd582c4337cb4d1461e95eaba6966fefe9ec958dbed13fb08d43f00592c4` to `sha256:8b1bfc80eec07ba78eaaf04ad8645987d34be861240d03ba5be9592676ada0b1`. Per native guard, no retry was attempted; parent must obtain the current untracked ruling before settlement.
+
+## Task 6 map-selection corrective work unit
+
+### Corrected behavior
+
+- Moved OSM interception into an automatic shared Playwright fixture. Every browser test now locally fulfills requests to `tile.openstreetmap.org`; any other `*.openstreetmap.org` request is aborted and recorded, and each test asserts that the unmatched list is empty.
+- Fixed manual marker creation: the marker now receives the MapLibre click's `lngLat` before it is added to the map. The regression proves no browser page error, the marker appears, the candidate propagates to `App`, and a second manual click moves the marker.
+- Added an `active` guard before every asynchronous geolocation `flyTo()` or React state update, set to false before `map.remove()` during cleanup. Browser-controlled late geolocation callbacks are not deterministically exposable through the existing real MapLibre seam without mocking it, so this guard was verified statically.
+- Static non-local-host evidence: `canUseOsmTiles()` permits only `localhost` and `*.localhost`; all non-local hosts receive an empty style source/layer object, so this code path has no OSM tile URL to request. The existing Portless runtime host is intentionally `.localhost`; no external hostname or network request was used.
+- Task 6 remains visibly checked in `tasks.md`; the persisted checkbox was re-read after correction. Tasks 7–8 remain unchecked and the parent-owned review action was preserved byte-for-byte.
+
+### TDD Cycle Evidence
+
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|
+| 6. Map selection correction | `e2e/smoke.spec.ts` | Real Chromium / preview / Portless / MapLibre | Existing E2E suite passed 6/6 before edits | Shared no-escape assertion failed in 3 tests and listed their raw OSM tile URLs; the new App-candidate assertion then exposed the MapLibre marker `lng` page error | Shared local tile fulfillment, map click events, initialized marker coordinates, and guarded geolocation callbacks made the full suite pass 6/6 | A second click proves the visible marker's screen position changes; full suite remained 6/6 | Scoped Biome formatting/import organization only; all checks remained green |
+
+### Fresh verification evidence
+
+- `pnpm build` — passed; regenerated authorized ignored `dist` and `.wrangler/deploy/config.json`. The existing MapLibre chunk-size warning (>500 kB) remains; no code-splitting was added.
+- `pnpm test:e2e` — passed 6/6 with all standard OSM tile traffic locally fulfilled and no unmatched external OSM request.
+- `pnpm typecheck` — passed.
+- `pnpm test` — passed, 2 files / 36 tests.
+- `pnpm exec biome check src/ComplaintMap.tsx e2e/smoke.spec.ts` — passed.
+- `git diff --check` — passed.
+
+### Files changed
+
+- `src/ComplaintMap.tsx`
+- `e2e/smoke.spec.ts`
+- `openspec/changes/add-pending-complaint-intake/apply-progress.md`
+
+### Remaining implementation tasks
+
+- [ ] Implement and verify the bounded anonymous form flow. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify the documentation and repository-wide acceptance evidence. <!-- sdd-owner: implementation -->
+
+### Deferred lifecycle action
+
+- [ ] After apply, start or reuse one bounded review against the approved delivery shape and verify the OpenSpec lifecycle gate before any archive action. <!-- sdd-owner: parent -->
+
+### Structured status, action context, and workload
+
+- Consumed authoritative native status: `changeName=add-pending-complaint-intake`, `artifactStore=openspec`, `applyState=ready`, repository-local allowed root.
+- Delivery remains `stacked-to-main`, Task 6 branch, corrective `map-selection-correction` work unit, 120-line source/test budget, and no `size:exception`.
+- The parent acquired and owns settlement of the active corrective objective. No opaque runtime authority value is persisted here.
+- CodeGraph initialization was attempted after root resolution; its executable was unavailable on `PATH`, so scoped direct inspection was used.
+- No Task 7 form work, Worker/API change, dependency/lock/style change, remote operation, deployment, commit, push, PR, or external OSM network traffic occurred.
+
+## Map-selection correction canonical-400 revalidation
+
+The user-authorized accounting reset is confirmed at the canonical 400-line budget for the existing `map-selection-correction` objective. Revalidation required no source or test edit; Tasks 7–8 remain untouched and no task checkbox changed.
+
+### Inspection confirmation
+
+- The shared automatic Playwright fixture fulfills every request to `tile.openstreetmap.org` with a local PNG; requests to every other `*.openstreetmap.org` host are aborted and recorded, and each test asserts the unmatched list is empty.
+- `ComplaintMap` sets its `active` cleanup guard to false before `map.remove()`. Both late geolocation callbacks check that guard before `map.flyTo()` or React's `setGeolocationHint()`.
+- The existing Chromium scenario still covers denied GPS, manually propagated candidate state, visible marker creation, and marker movement after a second click.
+- `canUseOsmTiles()` remains restricted to `localhost` and `*.localhost`; non-local map styles contain no OSM source or raster layer.
+
+### Strict-TDD revalidation evidence
+
+| Work unit | RED | GREEN / triangulation | Refactor |
+|---|---|---|---|
+| `map-selection-correction` revalidation | N/A — no source/test behavior changed | Existing candidate, marker, local-tile, and cleanup behavior passed the requested full evidence set | N/A — no source edit |
+
+### Fresh verification evidence
+
+- `pnpm test` — passed, 2 files / 36 tests.
+- `pnpm typecheck` — passed.
+- `pnpm build` — passed; only the existing MapLibre chunk-size warning was emitted.
+- `pnpm test:e2e` — passed, 6/6 through the local preview → Portless → workerd harness. No migrations were pending; the runner cleaned up its owned processes.
+- `pnpm exec biome check src/ComplaintMap.tsx e2e/smoke.spec.ts src/App.tsx src/styles.css` — passed.
+- `git diff --check` — passed.
+
+The user authorized ignored generated local state and outputs (`.wrangler/deploy/config.json`, `.wrangler/state`, Portless/test results, `dist`, and Vite outputs); no tracked source artifact was changed during this revalidation. Production OSM availability, non-local map runtime, remote resources, deployment, and production operations remain **N/A**.
+
+### Structured status, workload, and lifecycle
+
+- Authoritative status consumed: `changeName=add-pending-complaint-intake`, `artifactStore=openspec`, `applyState=ready`, `actionContext=repo-local`, with the repository root as the allowed edit root.
+- Native attempt status confirmed the active `map-selection-correction` objective at generation 11 with the explicit 400-line budget. The existing attempt was reacquired only to run bounded evidence; no opaque token is persisted here.
+- CodeGraph initialization was attempted after project-root resolution but the executable is unavailable on `PATH`; direct scoped inspection was used.
+- Parent owns settlement/closure. No review, receipt, commit, push, PR, network, provisioning, deployment, or Task 7–8 work was started.
+
+## Task 6 OSM test-isolation corrective work unit
+
+### Corrected behavior
+
+- Centralized OpenStreetMap host recognition: both `openstreetmap.org` and every `*.openstreetmap.org` host are now covered.
+- The automatic browser route still fulfills `tile.openstreetmap.org` locally before the deny branch; every other recognized OSM host is recorded and aborted, never continued.
+- All local `APIRequestContext` GET/POST calls now pass through a minimal URL assertion helper. It rejects bare and subdomain OSM URLs before Playwright can issue an API request; no global monkeypatch or framework wrapper was added.
+- The existing Task 6 Chromium scenario now proves local fixture fulfillment, page-route denial for bare and `www` OSM, and API GET/POST rejection for both hosts. Task 6 remains visibly checked; Tasks 7–8 and the parent-owned review row are unchanged.
+
+### TDD Cycle Evidence
+
+| Work unit | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|
+| `osm-test-isolation` | `e2e/smoke.spec.ts` | Real Chromium / Playwright API context / preview / Portless | `pnpm test:e2e` passed 6/6 before edit | New bare-host assertion failed: `https://openstreetmap.org/` resolved because the prior predicate matched subdomains only | Central predicate, route denial, and minimal API URL assertions made the suite pass 6/6 | Bare and `www` hosts are each checked through page navigation and API GET/POST; direct local tile fulfillment verifies the tile-first branch | Kept one existing Task 6 scenario (6 total E2E tests) and scoped helpers only; 6/6 remained green |
+
+### Verification evidence
+
+- `pnpm build && pnpm test:e2e` — fresh build passed (existing MapLibre chunk-size warning only); full real local E2E passed 6/6 with local migrations already current.
+- `pnpm test` — passed, 2 files / 36 tests.
+- `pnpm typecheck` — passed.
+- `pnpm exec biome check e2e/smoke.spec.ts` — passed.
+- `git diff --check` — passed.
+
+Runtime boundary: Green and final E2E runs use the local preview → Portless → workerd harness. The page route fulfills the configured tile with the in-test PNG and aborts root/subdomain OSM navigation before it can continue. The API URL assertion throws before calling the underlying `APIRequestContext`. Deployment, remote resources, and production OSM availability remain **N/A**.
+
+### Deviation
+
+The RED run intentionally exposed the existing defect: the bare-root navigation resolved before the previous subdomain-only route could stop it, and its `www` subresources were then aborted. This is an external-network escape from the pre-existing guard and conflicts with the requested no-external-network boundary. No Green, triangulation, or final verification run continued an OSM request; all were locally fulfilled or denied.
+
+### Files changed
+
+- `e2e/smoke.spec.ts`
+- `openspec/changes/add-pending-complaint-intake/apply-progress.md`
+
+### Remaining implementation tasks
+
+- [ ] Implement and verify the bounded anonymous form flow. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify the documentation and repository-wide acceptance evidence. <!-- sdd-owner: implementation -->
+
+### Deferred lifecycle action
+
+- [ ] After apply, start or reuse one bounded review against the approved delivery shape and verify the OpenSpec lifecycle gate before any archive action. <!-- sdd-owner: parent -->
+
+### Structured status, workload, and lifecycle
+
+- Consumed authoritative native status: `changeName=add-pending-complaint-intake`, `artifactStore=openspec`, `applyState=ready`, `actionContext=repo-local`, and the repository root was the allowed edit root.
+- Delivery is `stacked-to-main`; this corrective `osm-test-isolation` work unit has the canonical 400-line budget and no `size:exception`.
+- CodeGraph initialization was attempted after resolving the project root, but its executable is unavailable on `PATH`; scoped direct inspection was used.
+- Parent owns settlement/closure; no authority token is persisted here. No Task 7–8, application, Worker/API, dependency/lock, style, remote, provisioning, deployment, commit, push, PR, or review work was performed.
+
+## Task 6 trailing-dot OSM host normalization
+
+### Corrected behavior
+
+- The shared `isOpenStreetMapHost()` predicate removes DNS trailing dots before exact-root/subdomain matching. It therefore denies `openstreetmap.org.`, `www.openstreetmap.org.`, the ordinary root, and ordinary subdomains without a URL substring check.
+- The existing tile-first route still locally fulfills only `tile.openstreetmap.org`; every other normalized OSM host is recorded and aborted before continuation.
+- Page navigation and the `APIRequestContext` GET/POST wrappers use that same predicate. The retained local-harness health/unknown-API checks prove a non-OSM relative URL remains allowed.
+- Task 6 was already checked and was re-read as visibly complete; Tasks 7–8 remain unchecked. The parent-owned review checkbox was preserved byte-for-byte.
+
+### TDD Cycle Evidence
+
+| Work unit | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|
+| `osm-host-normalization` | `e2e/smoke.spec.ts` | Chromium / Playwright API context / local preview | `pnpm test:e2e`: 6/6 | Root and `www` trailing-dot predicate regressions failed: `openstreetmap.org.` returned `false`, proving the prior route/API branch would continue it | Removing trailing DNS dots before root/subdomain matching made the suite pass 6/6 | Ordinary root/subdomain, root/`www` trailing-dot variants through page and API helpers, allowed local host, and local tile fulfillment all pass | Flattened the predicate expression; 6/6 E2E and Biome remained green |
+
+### Fresh verification evidence
+
+- `pnpm build && pnpm test:e2e` — passed; fresh build emitted only the existing MapLibre chunk-size warning and the full local E2E suite passed 6/6.
+- `pnpm test` — passed, 2 files / 36 tests.
+- `pnpm typecheck` — passed.
+- `pnpm exec biome check e2e/smoke.spec.ts` — passed.
+- `git diff --check` — passed.
+
+Runtime boundary: Chromium used the local preview → Portless → workerd harness. The tile fixture was fulfilled in-process; root/subdomain OSM page requests were aborted and API calls threw before issuing a request. No external OSM traffic occurred in GREEN, triangulation, refactor, or final verification. Deployed resources, production OSM availability, and production operations remain **N/A**.
+
+### Files changed
+
+- `e2e/smoke.spec.ts`
+- `openspec/changes/add-pending-complaint-intake/apply-progress.md`
+
+### Remaining implementation tasks
+
+- [ ] Implement and verify the bounded anonymous form flow. <!-- sdd-owner: implementation -->
+- [ ] Implement and verify the documentation and repository-wide acceptance evidence. <!-- sdd-owner: implementation -->
+
+### Deferred lifecycle action
+
+- [ ] After apply, start or reuse one bounded review against the approved delivery shape and verify the OpenSpec lifecycle gate before any archive action. <!-- sdd-owner: parent -->
+
+### Structured status, workload, and lifecycle
+
+- Consumed authoritative native status: `changeName=add-pending-complaint-intake`, `artifactStore=openspec`, `applyState=ready`, `actionContext=repo-local`, with the repository root as the allowed edit root.
+- Delivery remains `stacked-to-main`; the parent-authorized `osm-host-normalization` corrective work unit has the canonical 400-line budget. No `size:exception` was used or inferred.
+- CodeGraph initialization was attempted after project-root resolution but the executable is unavailable on `PATH`; scoped direct inspection was used.
+- Parent owns attempt settlement and lifecycle closure; no authority token is persisted. No Task 7–8, application, Worker/API, dependency/lock, style, remote, provisioning, deployment, commit, push, PR, or review work was performed.

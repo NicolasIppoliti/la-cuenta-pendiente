@@ -131,7 +131,7 @@ The forecast crosses the canonical 400 authored changed-line budget because the 
 
 ### 6. Add the manual MapLibre selection seam with nonblocking GPS
 
-- [ ] Implement and verify explicit manual point selection and local-only mapped attribution. <!-- sdd-owner: implementation -->
+- [x] Implement and verify explicit manual point selection and local-only mapped attribution. <!-- sdd-owner: implementation -->
 
 **Start:** The API and real local persistence path are green; no browser map dependency is installed during this planning phase.
 
