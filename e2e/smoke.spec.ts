@@ -38,6 +38,39 @@ type LocalOsmTraffic = {
   interceptedTiles: number;
 };
 
+type MultipartSubmission = {
+  fields: Record<string, string>;
+  filename: string | undefined;
+  photo: Buffer;
+};
+
+function multipartSubmission(request: import("@playwright/test").Request): MultipartSubmission {
+  const contentType = request.headers()["content-type"];
+  const boundary =
+    contentType?.match(/boundary=(?:"([^"]+)"|([^;\s]+))/i)?.[1] ??
+    contentType?.match(/boundary=(?:"([^"]+)"|([^;\s]+))/i)?.[2];
+  const body = request.postDataBuffer();
+  if (!boundary || !body) throw new Error("Expected a multipart complaint request");
+
+  const fields: Record<string, string> = {};
+  let filename: string | undefined;
+  let photo = Buffer.alloc(0);
+  for (const part of body.toString("latin1").split(`--${boundary}`).slice(1, -1)) {
+    const separator = part.indexOf("\r\n\r\n");
+    const name = part.match(/name="([^"]+)"/)?.[1];
+    if (separator === -1 || !name) continue;
+    const value = Buffer.from(part.slice(separator + 4, -2), "latin1");
+    const partFilename = part.match(/filename="([^"]+)"/)?.[1];
+    if (partFilename) {
+      filename = partFilename;
+      photo = value;
+    } else {
+      fields[name] = value.toString();
+    }
+  }
+  return { fields, filename, photo };
+}
+
 const test = base.extend<{
   request: APIRequestContext;
   localOsmTraffic: LocalOsmTraffic;
@@ -173,9 +206,7 @@ test("manual map selection survives denied GPS and isolates OSM traffic", async 
   await page.locator(".maplibregl-canvas").click({ position: { x: 180, y: 120 } });
   await expect(candidateMarker).toBeVisible();
   expect(pageErrors).toEqual([]);
-  await expect(
-    page.getByText("Punto candidato seleccionado. Confirmá este punto en el próximo paso."),
-  ).toBeVisible();
+  await expect(page.getByText("Punto candidato seleccionado.", { exact: true })).toBeVisible();
 
   const initialMarkerBox = await candidateMarker.boundingBox();
   if (!initialMarkerBox) throw new Error("The selected marker has no bounding box");
@@ -220,6 +251,155 @@ test("manual map selection survives denied GPS and isolates OSM traffic", async 
     "openstreetmap.org.",
     "www.openstreetmap.org.",
   ]);
+});
+
+test("anonymous complaint intake counts code points and preserves frozen retry identity", async ({
+  page,
+}) => {
+  await page.context().clearPermissions();
+  await page.goto("/");
+
+  await expect(
+    page.getByText(
+      "Esta versión es solo para uso local y sintético. No es un canal oficial municipal.",
+    ),
+  ).toBeVisible();
+
+  const map = page.getByRole("region", { name: "Seleccioná el punto del reclamo" });
+  await map.click({ position: { x: 230, y: 160 } });
+  const confirmPoint = page.getByRole("button", { name: "Confirmar punto" });
+  await expect(confirmPoint).toBeEnabled();
+  await confirmPoint.click();
+  await expect(page.getByText("Punto confirmado para el reclamo.")).toBeVisible();
+
+  await map.click({ position: { x: 250, y: 160 } });
+  await expect(page.getByText("Punto confirmado para el reclamo.")).not.toBeVisible();
+  await map.click({ position: { x: 230, y: 160 } });
+  await confirmPoint.click();
+
+  const photoBytes = Buffer.from([0xff, 0xd8, 0xff, 0xe0]);
+  const description = page.getByLabel("Descripción");
+  const supplementaryCharacter = "😀";
+  await page.getByLabel("Foto").setInputFiles({
+    name: "synthetic.jpg",
+    mimeType: "image/jpeg",
+    buffer: photoBytes,
+  });
+  await description.fill(supplementaryCharacter.repeat(501));
+  await expect(description).toHaveValue(supplementaryCharacter.repeat(501));
+  await expect(page.getByText("501/500 caracteres.")).toBeVisible();
+
+  const submit = page.getByRole("button", { name: /Enviar reclamo|Enviando reclamo/ });
+  await submit.click();
+  await expect(page.getByRole("alert")).toContainText(
+    "La descripción no puede superar los 500 caracteres.",
+  );
+
+  const acceptedDescription = supplementaryCharacter.repeat(500);
+  await description.fill(acceptedDescription);
+  await expect(description).toHaveValue(acceptedDescription);
+  await expect(page.getByText("500/500 caracteres.")).toBeVisible();
+  const whatsapp = "+54 9 2932 555555";
+  await page.getByLabel("WhatsApp (opcional)").fill(`  ${whatsapp}  `);
+
+  let releaseRetryableFailure: () => void = () => undefined;
+  const retryableFailure = new Promise<void>((resolve) => {
+    releaseRetryableFailure = resolve;
+  });
+  const requests: MultipartSubmission[] = [];
+  let firstReceipt: unknown;
+  let completeThirdRequest: () => void = () => undefined;
+  const thirdRequestCompleted = new Promise<void>((resolve) => {
+    completeThirdRequest = resolve;
+  });
+  await page.route("**/api/complaints", async (route) => {
+    requests.push(multipartSubmission(route.request()));
+    if (requests.length === 1) {
+      const response = await route.fetch();
+      expect(response.status()).toBe(201);
+      firstReceipt = await response.json();
+      await retryableFailure;
+      await route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({
+          error: { code: "intake_unavailable", message: "The submission is invalid." },
+        }),
+      });
+      return;
+    }
+    if (requests.length === 2) {
+      await route.fulfill({ response: await route.fetch() });
+      return;
+    }
+    const response = await route.fetch();
+    expect(response.status()).toBe(201);
+    await route.fulfill({ response });
+    completeThirdRequest();
+  });
+
+  await submit.click();
+  await expect(submit).toBeDisabled();
+  await expect(confirmPoint).toBeDisabled();
+  await expect(page.getByLabel("Foto")).toBeDisabled();
+  await expect(description).toBeDisabled();
+  await expect(page.getByLabel("WhatsApp (opcional)")).toBeDisabled();
+  await expect(page.locator(".intake-form__mutable")).toHaveAttribute("inert", "");
+  await expect(map).toHaveCSS("pointer-events", "none");
+
+  await description.evaluate((element) => {
+    const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")?.set;
+    setter?.call(element, "drifted description");
+    element.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  const mapBox = await map.boundingBox();
+  if (!mapBox) throw new Error("The complaint map has no bounding box");
+  await page.mouse.click(mapBox.x + 40, mapBox.y + 40);
+  await page.locator("form").evaluate((form) => {
+    form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  });
+  await expect.poll(() => requests.length).toBe(1);
+
+  releaseRetryableFailure();
+  await expect(page.getByRole("alert")).toContainText("Podés reintentar sin perder los datos.");
+  await page.getByRole("button", { name: "Reintentar envío" }).click();
+  const receipt = page.getByRole("status");
+  await expect(receipt).toContainText("Pending");
+  await expect(receipt).toContainText("No implica revisión, publicación ni envío al municipio.");
+  expect(firstReceipt).toEqual({ complaintId: expect.any(String), status: "Pending" });
+  await expect(receipt).toContainText((firstReceipt as { complaintId: string }).complaintId);
+
+  expect(requests).toHaveLength(2);
+  expect(requests[0]).toEqual(requests[1]);
+  expect(requests[0]).toEqual({
+    fields: {
+      idempotencyKey: expect.stringMatching(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+      ),
+      latitude: expect.any(String),
+      locationConfirmed: "true",
+      longitude: expect.any(String),
+      description: acceptedDescription,
+      whatsapp,
+    },
+    filename: "synthetic.jpg",
+    photo: photoBytes,
+  });
+  expect(await page.getByText(whatsapp).count()).toBe(0);
+  await expect(description).toHaveValue("");
+  await expect(page.getByLabel("WhatsApp (opcional)")).toHaveValue("");
+
+  await map.click({ position: { x: 230, y: 160 } });
+  await confirmPoint.click();
+  await page.getByLabel("Foto").setInputFiles({
+    name: "synthetic.jpg",
+    mimeType: "image/jpeg",
+    buffer: photoBytes,
+  });
+  await submit.click();
+  await thirdRequestCompleted;
+  expect(requests).toHaveLength(3);
+  expect(requests[2].fields.idempotencyKey).not.toBe(requests[0].fields.idempotencyKey);
 });
 
 test("unknown API paths never become SPA HTML, including navigations", async ({

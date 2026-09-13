@@ -19,3 +19,34 @@ body {
   height: 20rem;
   width: 100%;
 }
+
+.intake-form label,
+.intake-form input,
+.intake-form textarea {
+  display: block;
+  width: 100%;
+}
+
+.intake-form input,
+.intake-form textarea {
+  border: 1px solid var(--color-ink);
+  border-radius: 0.25rem;
+  background: var(--color-paper);
+  padding: 0.5rem;
+}
+
+.intake-form input[type="file"] {
+  border: 0;
+  padding-inline: 0;
+}
+
+.intake-form textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.intake-form__mutable[inert] {
+  cursor: progress;
+  opacity: 0.6;
+  pointer-events: none;
+}
