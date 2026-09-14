@@ -171,7 +171,7 @@ The forecast crosses the canonical 400 authored changed-line budget because the 
 
 ### 8. Document the local-only boundary and run the final evidence set
 
-- [ ] Implement and verify the documentation and repository-wide acceptance evidence. <!-- sdd-owner: implementation -->
+- [x] Implement and verify the documentation and repository-wide acceptance evidence. <!-- sdd-owner: implementation -->
 
 **Start:** Units 1–7 are green and no unresolved test or harness defect is being hidden in documentation.
 

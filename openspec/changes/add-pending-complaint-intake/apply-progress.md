@@ -651,3 +651,89 @@ Runtime boundary: this browser evidence proves the client behavior plus the real
 - Delivery remains `stacked-to-main`. The user explicitly accepted the candidate-specific `size:exception` if the final diff exceeds 400; the active correction objective has the native 500-line budget. No delivery action, commit, push, PR, review, remote operation, or external-network request occurred.
 - A parent-owned active correction attempt was continued for the required runtime evidence. Parent owns settlement; no opaque authority value is recorded here.
 - CodeGraph initialization was attempted after root resolution and failed because the `codegraph` executable is unavailable on `PATH`; scoped direct inspection was the documented fallback.
+
+## Task 8 final documentation and acceptance evidence
+
+### Completed work
+
+- [x] Implement and verify the documentation and repository-wide acceptance evidence. <!-- sdd-owner: implementation -->
+  - Updated `README.md` with the local synthetic Pending intake quick path, local migration startup, explicit map/GPS confirmation boundary, private opaque-original boundary, local-only OSM attribution/policy, idempotent retry behavior, and production exclusions.
+  - The persisted Task 8 checkbox was updated immediately and is re-read below; no parent-owned task content was modified.
+
+### TDD Cycle Evidence
+
+| Task | Test file | Layer | Safety net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|
+| 8. Documentation and final evidence | N/A — documentation only | Documentation + configured acceptance seams | N/A — README copy has no executable behavior | N/A — no behavior RED applies; the task explicitly requires documentation | README aligned to the implemented local-only contract | Final unit, type, build, and E2E checks exercise distinct configured seams | No behavior refactor; wording was kept to approved scope |
+
+### Verification evidence
+
+- `pnpm test` — passed: 2 files / 36 tests.
+- `pnpm lint` — failed only on pre-existing/out-of-scope formatting in `.pi/gentle-ai/sdd-preflight.json` and the pinned `worker/data/ign-06182.json`; Biome also reported its existing deprecated `linter.rules.recommended` configuration notice. Neither prohibited surface was edited.
+- `pnpm typecheck` — passed.
+- `pnpm build` — fresh build passed. The existing MapLibre client-chunk warning (>500 kB) remains; no code-splitting scope was added.
+- `pnpm test:e2e` — passed: 7/7 via preview → Portless → workerd → local D1/private R2. The harness applied no pending local migrations and locally fulfilled configured OSM tiles while blocking other OSM hosts.
+- `pnpm exec biome check README.md` — Biome ignores Markdown in this configuration and exited with “No files were processed”; no README formatter was added.
+- `pnpm exec biome check src/App.tsx src/ComplaintMap.tsx src/styles.css worker/complaint-intake.ts worker/index.ts tests/worker.test.ts tests/complaint-intake.test.ts e2e/smoke.spec.ts scripts/e2e.mjs` — passed (9 files).
+- `git diff --check` — passed before task-artifact persistence.
+
+Runtime boundary: the final E2E evidence proves only the configured local browser/workerd/D1/private-R2 harness. Remote/deployed resources, production durability, current IGN-boundary freshness, production OSM availability/authorization, abuse protection, and production operations are **N/A** and were not attempted.
+
+### Files changed
+
+- `README.md`
+- `openspec/changes/add-pending-complaint-intake/tasks.md`
+- `openspec/changes/add-pending-complaint-intake/apply-progress.md`
+
+### Remaining tasks and deferred lifecycle
+
+All implementation-owned tasks are complete. The only unchecked persisted task is parent-owned and was preserved byte-for-byte:
+
+- [ ] After apply, start or reuse one bounded review against the approved delivery shape and verify the OpenSpec lifecycle gate before any archive action. <!-- sdd-owner: parent -->
+
+### Structured status, workload, and action context
+
+- Consumed authoritative native status: `changeName=add-pending-complaint-intake`, `artifactStore=openspec`, `applyState=ready`, and `actionContext=repo-local` with `/Users/nicolasmateoippoliti/dev/la-cuenta-pendiente` as the allowed root.
+- Delivery for this work unit is user-resolved `stacked-to-main`, Task 8 only, canonical 400-line budget, and no `size:exception`. The documentation/artifact-only slice is within that boundary.
+- The active native continuation was acquired before runtime-bearing evidence. Its opaque authority value is intentionally not persisted.
+- CodeGraph’s executable/MCP intelligence surface was unavailable; scoped direct inspection was the documented fallback.
+- No product source, dependency, migration, Task 7/test-assertion change, external network operation, review, receipt, commit, push, PR, provisioning, deployment, or parent-owned lifecycle action occurred.
+
+## Task 8 documentation limitation correction
+
+### Completed documentation correction
+
+- Added concise README limitations for the current production-build client chunk warning
+  (>500 kB), approximately 1.251 MB minified / 347 kB gzip client output, and the fact
+  that these measurements are not production performance evidence.
+- Recorded that `pnpm lint` exits 1 only for out-of-scope
+  `.pi/gentle-ai/sdd-preflight.json` and the pinned one-line
+  `worker/data/ign-06182.json`; scoped Biome across implementation passes, but global
+  lint is not represented as green.
+- Preserved the quick path and every local/synthetic, privacy, private-original, and
+  local-only OSM boundary. Task 8 was already visibly checked; no task checkbox changed.
+
+### Verification evidence
+
+- `pnpm test` — passed: 2 files / 36 tests.
+- `pnpm lint` — exited 1 only for the two documented out-of-scope files; the existing
+  Biome deprecated-configuration notice also remains.
+- `pnpm typecheck` — passed.
+- `pnpm build` — passed; client asset `index-mjNyd9i-.js` was 1,251.15 kB minified /
+  347.22 kB gzip and emitted the >500 kB chunk warning.
+- `pnpm test:e2e` — passed: 7/7 through the configured local preview → Portless →
+  workerd → local D1/private-R2 harness; no migrations were pending.
+- `pnpm exec biome check src/App.tsx src/ComplaintMap.tsx src/styles.css worker/complaint-intake.ts worker/index.ts tests/worker.test.ts tests/complaint-intake.test.ts e2e/smoke.spec.ts scripts/e2e.mjs` — passed: 9 files.
+- `git diff --check` — passed before this progress persistence.
+
+### Structured status, workload, and lifecycle
+
+- Consumed authoritative `applyState=ready` for `add-pending-complaint-intake` with
+  `artifactStore=openspec` and repo-local `/Users/nicolasmateoippoliti/dev/la-cuenta-pendiente`
+  as the allowed edit root.
+- Parent authorized only the Task 8 README-limitations correction and owned the active
+  attempt; no token, delivery, review, receipt, commit, push, PR, provisioning,
+  deployment, external-network, behavior, test, dependency, or task-artifact action was
+  performed.
+- All implementation-owned task rows remain checked. The parent-owned bounded-review
+  lifecycle row remains the only unchecked task and is deferred unchanged.
