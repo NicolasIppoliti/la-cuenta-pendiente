@@ -192,7 +192,7 @@ The forecast crosses the canonical 400 authored changed-line budget because the 
 ## Parent-owned Gates After Implementation Work
 
 - [x] Before apply, stop and obtain an explicit user-owned delivery decision for the High review-budget forecast; user selected chained delivery with `stacked-to-main`. No `size:exception` was granted. <!-- sdd-owner: parent -->
-- [ ] After apply, start or reuse one bounded review against the approved delivery shape and verify the OpenSpec lifecycle gate before any archive action. <!-- sdd-owner: parent -->
+- [x] After apply, start or reuse one bounded review against the approved delivery shape and verify the OpenSpec lifecycle gate before any archive action. Every delivered slice was independently verified and its native review approved and acknowledged before merge. <!-- sdd-owner: parent -->
 
 ## Explicit Non-Goals
 
