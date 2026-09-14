@@ -699,6 +699,13 @@ All implementation-owned tasks are complete. The only unchecked persisted task i
 - CodeGraph’s executable/MCP intelligence surface was unavailable; scoped direct inspection was the documented fallback.
 - No product source, dependency, migration, Task 7/test-assertion change, external network operation, review, receipt, commit, push, PR, provisioning, deployment, or parent-owned lifecycle action occurred.
 
+## Parent post-apply review closure
+
+- Every delivered implementation slice was independently verified before delivery.
+- Native reviews were approved and acknowledged for territory/data, durability coordination, HTTP intake, real local storage evidence, map selection, complaint form, and final documentation.
+- PRs #1–#7 were merged to `main`; the final implementation/documentation baseline before SDD verification is `7392dc9`.
+- The parent-owned post-apply review task is complete. This does not replace SDD verification against the complete specification.
+
 ## Task 8 documentation limitation correction
 
 ### Completed documentation correction
